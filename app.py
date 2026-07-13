@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from groq import Groq
+from groq import Groq, AuthenticationError, APIError
 
 # ─────────────────────────────────────────────
 # CONFIG
@@ -87,12 +87,25 @@ def go_back():
 # LLM CALLS
 # ─────────────────────────────────────────────
 def call_llm(prompt):
-    chat = client.chat.completions.create(
-        model=TEXT_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.4,
-    )
-    return chat.choices[0].message.content
+    try:
+        chat = client.chat.completions.create(
+            model=TEXT_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+        )
+        return chat.choices[0].message.content
+    except AuthenticationError:
+        st.error(
+            "🔑 **Groq Authentication Error**: The API key provided is invalid or has expired. "
+            "Please check your API key settings in Streamlit Secrets or provide a valid key in the sidebar."
+        )
+        st.stop()
+    except APIError as e:
+        st.error(f"🌐 **Groq API Error**: {e.message}")
+        st.stop()
+    except Exception as e:
+        st.error(f"⚠️ **Unexpected API error**: {e}")
+        st.stop()
 
 
 def check_valid_symptom_input(symptoms):
