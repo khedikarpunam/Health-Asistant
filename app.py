@@ -10,17 +10,6 @@ st.set_page_config(page_title="AI Health Triage Assistant", page_icon="🏥", la
 # Retrieve API Key from Streamlit Secrets or Environment Variables
 api_key = st.secrets.get("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
 
-# Offer sidebar input for manual override/fallback if key is not configured
-sidebar_key = st.sidebar.text_input(
-    "🔑 Enter Groq API Key (Optional fallback):",
-    value="",
-    type="password",
-    help="Use this to run the app if you haven't configured the Streamlit Secrets yet."
-)
-
-if sidebar_key:
-    api_key = sidebar_key
-
 # Check if the API key exists. If not, show instructions and stop execution cleanly.
 if not api_key:
     st.title("🏥 AI Health Triage Assistant")
@@ -45,9 +34,6 @@ if not api_key:
         ```toml
         GROQ_API_KEY = "your-actual-groq-api-key"
         ```
-        
-        #### Option 3: Quick Test (Direct Input)
-        Enter your Groq API key in the **sidebar input field** on the left to start using the app immediately.
         """
     )
     st.stop()
@@ -97,7 +83,7 @@ def call_llm(prompt):
     except AuthenticationError:
         st.error(
             "🔑 **Groq Authentication Error**: The API key provided is invalid or has expired. "
-            "Please check your API key settings in Streamlit Secrets or provide a valid key in the sidebar."
+            "Please check your API key settings in Streamlit Secrets."
         )
         st.stop()
     except APIError as e:
